@@ -63,6 +63,12 @@ extern ARM_UC_PAAL_UPDATE MBED_CLOUD_CLIENT_UPDATE_STORAGE;
 #endif
 
 #if defined(ARM_UC_USE_PAL_BLOCKDEVICE) && (ARM_UC_USE_PAL_BLOCKDEVICE==1)
+#if defined(TARGET_NUVOTON)
+/* initialise sd card blockdevice */
+#include "NuSDBlockDevice.h"
+
+NuSDBlockDevice sd;
+#else
 #include "SDBlockDevice.h"
 
 /* initialise sd card blockdevice */
@@ -73,6 +79,7 @@ SDBlockDevice sd(MBED_CONF_APP_SPI_MOSI, MBED_CONF_APP_SPI_MISO,
 #else
 SDBlockDevice sd(MBED_CONF_SD_SPI_MOSI, MBED_CONF_SD_SPI_MISO,
                  MBED_CONF_SD_SPI_CLK,  MBED_CONF_SD_SPI_CS);
+#endif
 #endif
 
 BlockDevice *arm_uc_blockdevice = &sd;
@@ -85,6 +92,11 @@ BlockDevice *arm_uc_blockdevice = &sd;
 /* If jump address is not set then default to start address. */
 #ifndef MBED_CONF_APP_APPLICATION_JUMP_ADDRESS
 #define MBED_CONF_APP_APPLICATION_JUMP_ADDRESS MBED_CONF_APP_APPLICATION_START_ADDRESS
+#endif
+
+#if defined(MBED_HEAP_STATS_ENABLED) && MBED_HEAP_STATS_ENABLED
+/* Measure memory footprint */
+#include "mbed_stats.h"
 #endif
 
 int main(void)
@@ -167,6 +179,15 @@ int main(void)
         }
     }
 
+#if defined(MBED_HEAP_STATS_ENABLED) && MBED_HEAP_STATS_ENABLED
+    /* Heap usage */
+    mbed_stats_heap_t heap_stats;
+    mbed_stats_heap_get(&heap_stats);
+    printf("\r\nCurrent heap size: %u\r\n", heap_stats.current_size);
+    printf("Max heap size: %u\r\n\r\n", heap_stats.max_size);
+    wait(1);
+#endif
+
     /* forward control to ACTIVE application if it is deemed sane */
     if (canForward) {
 #if defined(BOOTLOADER_POWER_CUT_TEST) && (BOOTLOADER_POWER_CUT_TEST == 1)
@@ -184,6 +205,15 @@ int main(void)
         tr_info("Application's jump address: 0x%" PRIX32, app_jump_addr);
         tr_info("Application's stack address: 0x%" PRIX32, app_stack_ptr);
         tr_info("Forwarding to application...\r\n");
+
+#if defined(MBED_HEAP_STATS_ENABLED) && MBED_HEAP_STATS_ENABLED
+        /* Heap usage */
+        mbed_stats_heap_t heap_stats;
+        mbed_stats_heap_get(&heap_stats);
+        printf("\r\nCurrent heap size: %u\r\n", heap_stats.current_size);
+        printf("Max heap size: %u\r\n\r\n", heap_stats.max_size);
+        wait(1);
+#endif
 
         mbed_start_application(MBED_CONF_APP_APPLICATION_JUMP_ADDRESS);
     }
