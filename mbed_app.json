@@ -152,6 +152,24 @@
             "application-start-address"        : "(MBED_CONF_APP_FLASH_START_ADDRESS+65*1024)",
             "max-application-size"             : "DEFAULT_MAX_APPLICATION_SIZE"
         },
+        "NUMAKER_PFM_NUC472": {
+            "flash-start-address"              : "0x0",
+            "flash-size"                       : "(512*1024)",
+            "sotp-section-1-address"           : "(MBED_CONF_APP_FLASH_START_ADDRESS+0x15000)",
+            "sotp-section-1-size"              : "0x1000",
+            "sotp-section-2-address"           : "(MBED_CONF_APP_FLASH_START_ADDRESS+0x16000)",
+            "sotp-section-2-size"              : "0x1000",
+            "update-client.application-details": "(MBED_CONF_APP_FLASH_START_ADDRESS+0x17000)",
+            "application-start-address"        : "(MBED_CONF_APP_FLASH_START_ADDRESS+0x18000)",
+            "max-application-size"             : "DEFAULT_MAX_APPLICATION_SIZE",
+
+            "update-client.storage-address"     : "(1024*1024*800)",
+            "update-client.storage-size"        : "(1024*1024*2)",
+
+            "target.macros_add": [
+                "PAL_INT_FLASH_NUM_SECTIONS=2"
+            ]
+        },
         "NUMAKER_PFM_M487": {
             "flash-start-address"              : "0x0",
             "flash-size"                       : "(512*1024)",
